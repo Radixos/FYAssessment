@@ -74,7 +74,7 @@ int main()
 	glCullFace(GL_BACK);
 
 	// simple vertex and fragment shader - add your own tess and geo shader
-	Shader shader("..\\shaders\\plainVert.vs", "..\\shaders\\plainFrag.fs");
+	Shader shader("..\\shaders\\tessVert.vs", "..\\shaders\\plainFrag.fs", "..\\shaders\\Norms.gs", "..\\shaders\\tessControlShader.tcs", "..\\shaders\\tessEvaluationShader.tes");
 
 
 	//Terrain Constructor ; number of grids in width, number of grids in height, gridSize
@@ -104,8 +104,13 @@ int main()
 	    shader.setMat4("projection", projection);
 		shader.setMat4("view", view);
 		shader.setMat4("model", model);
+		shader.setVec3("viewPos", camera.Position);
+		shader.setVec3("eyePos", camera.Position);
+
+		shader.setFloat("lambda", -0.105f);
+		shader.setFloat("alpha", 15.f);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glDrawArrays(GL_TRIANGLES, 0, vertices.size() / 3);
+		glDrawArrays(GL_PATCHES, 0, vertices.size() / 3);
 		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) 
 		  camera.printCameraCoords();
 
