@@ -15,12 +15,12 @@ uniform mat4 view;
 uniform mat4 projection;
 
 // read in vector arrays from previous shader
-in vec3 normTC[] ;
-in vec3 posTC[] ;
+in vec2 TexCoordsTC[];
+in vec3 FragPosTC[];
 
 // pass along the interpolated values
-out vec3 normES ;
-out vec3 posES ;
+out vec2 TexCoordsES;
+out vec3 FragPosES;
 
 
 
@@ -29,11 +29,11 @@ void main()
     // interpolate the normal and xyz position using the linear interpolation function
     // use 3D because they are in three dimensions; 2D also included for uv texture coordinates
 
-   normES = interpolate3D(normTC[0], normTC[1], normTC[2]) ;
-   vec3 posES = interpolate3D(posTC[0], posTC[1], posTC[2]) ;
+   TexCoordsES = interpolate2D(TexCoordsTC[0], TexCoordsTC[1], TexCoordsTC[2]) ;
+   FragPosES = interpolate3D(FragPosTC[0], FragPosTC[1], FragPosTC[2]) ;
 
    // transform vertex to clip space  - NOTE: WE NEED TO DO IT HERE NOW and not in vertex shader
-   gl_Position = model * view * projection * vec4(posES, 1.0);
+   gl_Position = projection*view * vec4(FragPosES, 1.0);
 } 
 
 

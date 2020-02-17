@@ -74,16 +74,12 @@ int main()
 	glCullFace(GL_BACK);
 
 	// simple vertex and fragment shader - add your own tess and geo shader
-	Shader shader("..\\shaders\\tessVert.vs", "..\\shaders\\plainFrag.fs", "..\\shaders\\Norms.gs", "..\\shaders\\tessControlShader.tcs", "..\\shaders\\tessEvaluationShader.tes");
-
+	Shader shader("..\\shaders\\plainVert.vs", "..\\shaders\\plainFrag.fs", "..\\shaders\\Norms.gs", "..\\shaders\\tessControlShader.tcs", "..\\shaders\\tessEvaluationShader.tes");
 
 	//Terrain Constructor ; number of grids in width, number of grids in height, gridSize
-	Terrain terrain(50, 50,10);
-	std::vector<float> vertices= terrain.getVertices();
+	Terrain terrain(50, 50, 10);
+	std::vector<float> vertices = terrain.getVertices();
 	setVAO(vertices);
-
-	
-
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -100,6 +96,7 @@ int main()
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1200.0f);
 		glm::mat4 view = camera.GetViewMatrix();
 		glm::mat4 model = glm::mat4(1.0f);
+
 	    shader.use();
 	    shader.setMat4("projection", projection);
 		shader.setMat4("view", view);
@@ -109,16 +106,14 @@ int main()
 
 		shader.setFloat("lambda", -0.105f);
 		shader.setFloat("alpha", 15.f);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glDrawArrays(GL_PATCHES, 0, vertices.size() / 3);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);	//GL_FILL, GL_LINE
+		glDrawArrays(GL_PATCHES, 0, vertices.size());
 		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) 
 		  camera.printCameraCoords();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
-
-
 	glfwTerminate();
 	return 0;
 }
@@ -166,10 +161,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 	camera.ProcessMouseMovement(xoffset, yoffset);
 }
-
-
-
-
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
 // ----------------------------------------------------------------------
@@ -237,6 +228,3 @@ void setVAO(vector <float> vertices) {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
-
-
-
