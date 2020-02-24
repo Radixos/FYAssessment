@@ -1,0 +1,10 @@
+﻿  Source.cpp
+c:\users\radix\onedrive\pulpit\assignment\terrain\terrain\src\source.cpp(85): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\radix\onedrive\pulpit\assignment\terrain\terrain\src\source.cpp(145): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\radix\onedrive\pulpit\assignment\terrain\terrain\src\source.cpp(146): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\radix\onedrive\pulpit\assignment\terrain\terrain\src\source.cpp(150): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\radix\onedrive\pulpit\assignment\terrain\terrain\src\source.cpp(151): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\radix\onedrive\pulpit\assignment\terrain\terrain\src\source.cpp(153): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\radix\onedrive\pulpit\assignment\terrain\terrain\src\source.cpp(154): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\radix\onedrive\pulpit\assignment\terrain\terrain\src\source.cpp(163): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  Terrain.vcxproj -> C:\Users\radix\OneDrive\Pulpit\Assignment\Terrain\Debug\Terrain.exe
