@@ -77,6 +77,9 @@ int main()
 	//Terrain Constructor ; number of grids in width, number of grids in height, gridSize
 	Terrain terrain(50, 50,10);
 	std::vector<float> vertices= terrain.getVertices();
+
+	unsigned int heightMap = loadTexture("..\\resources\\heightMap.jpg");
+
 	setVAO(vertices);
 
 	while (!glfwWindowShouldClose(window))
@@ -95,12 +98,19 @@ int main()
 		glm::mat4 view = camera.GetViewMatrix();
 		glm::mat4 model = glm::mat4(1.0f);
 	    shader.use();
+		shader.setInt("heightMap", 0);
+		//shader.setFloat("alpha", 15f);
+		//shader.setFloat("lambda", 0.0105f / 2.5f);
 	    shader.setMat4("projection", projection);
 		shader.setMat4("view", view);
 		shader.setMat4("model", model);
 		shader.setVec3("eyePos", camera.Position);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glDrawArrays(GL_PATCHES, 0, vertices.size() / 3);
+
+		glBindTexture(GL_TEXTURE_2D, heightMap);
+		glActiveTexture(GL_TEXTURE1);
+
 		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) 
 		  camera.printCameraCoords();
 

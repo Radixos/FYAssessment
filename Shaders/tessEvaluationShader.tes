@@ -13,9 +13,14 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+//uniform int texture1;
+uniform sampler2D heightMap;
+
 // read in vector arrays from previous shader
 in vec3 normTC[];
 in vec3 posTC[];
+in vec2 tcTexCoords[];
+//in int heightMap[];
 
 // pass along the interpolated values
 out vec3 normES;
@@ -28,9 +33,13 @@ void main()
 
    normES = interpolate3D(normTC[0], normTC[1], normTC[2]);
    vec3 posES = interpolate3D(posTC[0], posTC[1], posTC[2]);
+	
+	float height = (texture(heightMap, tcTexCoords).x);
+	posES.y = height;
+	gl_Position = projection * view * model * vec4(posES, 1.0);
 
    // transform vertex to clip space  - NOTE: WE NEED TO DO IT HERE NOW and not in vertex shader
-   gl_Position = projection * view * vec4(posES, 1.0);
+   //gl_Position = projection * view * vec4(posES, 1.0);
 }
 
 //basic linear interpolation

@@ -10,25 +10,28 @@ layout (vertices = 3) out;
 
 in vec3 FragPos[];
 in vec3 normVS[];
+in vec2 TexCoords[];
 
 uniform vec3 eyePos;
 
 out vec3 posTC[];
 out vec3 normTC[];
+out vec2 tcTexCoords[];
 
 float GetTessLevel(float dist1, float dist2)
 {
 	float tessLevel = 0;
 	float avgDist = (dist1 + dist2)/2;
-	float lambda = -0.1;
-	float alpha = 5;
+	float lambda = 0.0105/2.5;
+	float alpha = 15;
 
-	float equation = lambda * avgDist;
+	float equation = -lambda * avgDist;
 
-	tessLevel = round(exp(equation) * alpha);
+	tessLevel = exp(equation) * alpha;
 
 	if (avgDist < 1)
 		return 1;
+
 	return tessLevel;
 }
 
@@ -55,5 +58,6 @@ void main()
 
    // pass through position and normal information
    posTC[gl_InvocationID]  = FragPos[gl_InvocationID];
+   tcTexCoords[gl_InvocationID] = TexCoords[gl_InvocationID];
    normTC[gl_InvocationID] = normVS[gl_InvocationID];
 }
