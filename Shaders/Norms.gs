@@ -6,6 +6,7 @@ vec3 getNormal();
 in vec3 posES[];
 in vec3 normES[];
 in vec3 eyePos[];
+//in vec2 teTexCoords[];
 
 out vec3 gNormals;
 out vec3 gWorldPos_FS_in;
