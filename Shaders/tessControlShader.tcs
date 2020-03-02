@@ -13,6 +13,8 @@ in vec3 normVS[];
 in vec2 TexCoords[];
 
 uniform vec3 eyePos;
+uniform float alpha;
+uniform float lambda;
 
 out vec3 posTC[];
 out vec3 normTC[];
@@ -22,8 +24,6 @@ float GetTessLevel(float dist1, float dist2)
 {
 	float tessLevel = 0;
 	float avgDist = (dist1 + dist2)/2;
-	float lambda = 0.0105/2.5;
-	float alpha = 15;
 
 	float equation = -lambda * avgDist;
 
