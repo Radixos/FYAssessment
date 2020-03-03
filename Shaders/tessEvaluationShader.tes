@@ -18,22 +18,20 @@ uniform sampler2D heightMap;
 uniform int scale;
 
 // read in vector arrays from previous shader
-in vec3 normTC[];
 in vec3 posTC[];
 in vec2 tcTexCoords[];
 //in int heightMap[];
 
 // pass along the interpolated values
-out vec3 normES;
 out vec3 posES;
 out vec2 teTexCoords;
+out vec3 norms;
 
 void main()
 {
     // interpolate the normal and xyz position using the linear interpolation function
     // use 3D because they are in three dimensions; 2D also included for uv texture coordinates
 
-	normES = interpolate3D(normTC[0], normTC[1], normTC[2]);
 	vec3 posES = interpolate3D(posTC[0], posTC[1], posTC[2]);
 	teTexCoords = interpolate2D(tcTexCoords[0], tcTexCoords[1], tcTexCoords[2]);
 
@@ -42,7 +40,7 @@ void main()
 	float up = (textureOffset(heightMap, teTexCoords, ivec2(0, 1)).r)*scale;
 	float down = (textureOffset(heightMap, teTexCoords, ivec2(0, -1)).r)*scale;
 
-	//vec3 norms = normalize((left - right), 2.0, (up - down));
+	norms = normalize(vec3((left - right), 2.0, (up - down)));
 
 	float height = (texture(heightMap, teTexCoords).x);
 	posES.y = height * scale;

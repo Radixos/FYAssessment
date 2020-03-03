@@ -1,10 +1,12 @@
 ﻿  Source.cpp
-h:\year 3\shaders\fyassessment\terrain\src\source.cpp(91): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-h:\year 3\shaders\fyassessment\terrain\src\source.cpp(161): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-h:\year 3\shaders\fyassessment\terrain\src\source.cpp(162): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-h:\year 3\shaders\fyassessment\terrain\src\source.cpp(166): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-h:\year 3\shaders\fyassessment\terrain\src\source.cpp(167): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-h:\year 3\shaders\fyassessment\terrain\src\source.cpp(169): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-h:\year 3\shaders\fyassessment\terrain\src\source.cpp(170): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-h:\year 3\shaders\fyassessment\terrain\src\source.cpp(179): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-  Terrain.vcxproj -> H:\year 3\Shaders\FYAssessment\Debug\Terrain.exe
+c:\users\radix\onedrive\pulpit\shaderassignment\terrain\terrain\src\source.cpp(98): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\radix\onedrive\pulpit\shaderassignment\terrain\terrain\src\source.cpp(130): warning C4305: 'argument': truncation from 'double' to 'float'
+c:\users\radix\onedrive\pulpit\shaderassignment\terrain\terrain\src\source.cpp(131): warning C4305: 'argument': truncation from 'double' to 'float'
+c:\users\radix\onedrive\pulpit\shaderassignment\terrain\terrain\src\source.cpp(221): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\radix\onedrive\pulpit\shaderassignment\terrain\terrain\src\source.cpp(222): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\radix\onedrive\pulpit\shaderassignment\terrain\terrain\src\source.cpp(226): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\radix\onedrive\pulpit\shaderassignment\terrain\terrain\src\source.cpp(227): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\radix\onedrive\pulpit\shaderassignment\terrain\terrain\src\source.cpp(229): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\radix\onedrive\pulpit\shaderassignment\terrain\terrain\src\source.cpp(230): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\radix\onedrive\pulpit\shaderassignment\terrain\terrain\src\source.cpp(239): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  Terrain.vcxproj -> C:\Users\radix\OneDrive\Pulpit\ShaderAssignment\Terrain\Debug\Terrain.exe

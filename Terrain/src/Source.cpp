@@ -43,6 +43,13 @@ unsigned int VBO, VAO;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+//variables for camera movement
+float speed = deltaTime;
+double counter = 1;
+
+bool blinn = false;
+bool blinnKeyPressed = false;
+
 int main()
 {
 	glfwInit();
@@ -104,16 +111,48 @@ int main()
 		shader.setInt("heightMap", 0);
 		shader.setInt("scale", 50);
 		shader.setFloat("alpha", 15.f);
-		shader.setFloat("lambda", 0.0105f / 2.5f);
+		shader.setFloat("lambda", 0.0105f / 5.f);
 	    shader.setMat4("projection", projection);
 		shader.setMat4("view", view);
 		shader.setMat4("model", model);
 		shader.setVec3("eyePos", camera.Position);
+		shader.setInt("blinn", blinn);
+		shader.setVec3("colour", 0.0f, 0.0f, 0.0f);
+
+		std::cout << (blinn ? "Blinn-Phong" : "Phong") << std::endl;
+
+		//light properties
+		shader.setVec3("dirLight.direction", dirLightPos);
+		shader.setVec3("dirLight.ambient", 0.5f, 0.5f, 0.5f);
+		shader.setVec3("dirLight.diffuse", 0.55f, 0.55f, 0.55f);
+		shader.setVec3("dirLight.specular", 0.6f, 0.6f, 0.6f);
+		//material properties
+		shader.setVec3("mat.ambient", 0.3, 0.387, 0.317);
+		shader.setVec3("mat.diffuse", 0.396, 0.741, 0.691);
+		shader.setVec3("mat.specular", 0.297f, 0.308f, 0.306f);
+		shader.setFloat("mat.shininess", 0.9f);
 
 		glBindTexture(GL_TEXTURE_2D, heightMap);
 		glActiveTexture(GL_TEXTURE1);
 
+		int counter = 1;
+
+		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+			counter++;
+
+		/*switch(0)
+		{
+		case counter % 2 == 0:
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			break;
+		case counter % 2 == 1:
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		}*/
+
+
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);	//GL_LINE
+		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glDrawArrays(GL_PATCHES, 0, vertices.size() / 3);
 
 
@@ -135,14 +174,35 @@ void processInput(GLFWwindow *window)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
+	
+	if (counter < 10)
+		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+			counter += 0.03;
+
+	if (counter > 1)
+		if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+			counter -= 0.03;
+		
+	speed = deltaTime * (float)counter;
+
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera.ProcessKeyboard(FORWARD, deltaTime);
+		camera.ProcessKeyboard(FORWARD, speed);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera.ProcessKeyboard(BACKWARD, deltaTime);
+		camera.ProcessKeyboard(BACKWARD, speed);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera.ProcessKeyboard(LEFT, deltaTime);
+		camera.ProcessKeyboard(LEFT, speed);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera.ProcessKeyboard(RIGHT, deltaTime);
+		camera.ProcessKeyboard(RIGHT, speed);
+
+	if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS && !blinnKeyPressed)
+	{
+		blinn = !blinn;
+		blinnKeyPressed = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_B) == GLFW_RELEASE)
+	{
+		blinnKeyPressed = false;
+	}
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

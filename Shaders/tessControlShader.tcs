@@ -17,7 +17,6 @@ uniform float alpha;
 uniform float lambda;
 
 out vec3 posTC[];
-out vec3 normTC[];
 out vec2 tcTexCoords[];
 
 float GetTessLevel(float dist1, float dist2)
@@ -59,5 +58,4 @@ void main()
    // pass through position and normal information
    posTC[gl_InvocationID]  = FragPos[gl_InvocationID];
    tcTexCoords[gl_InvocationID] = TexCoords[gl_InvocationID];
-   normTC[gl_InvocationID] = normVS[gl_InvocationID];
 }
