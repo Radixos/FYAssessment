@@ -135,20 +135,8 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, heightMap);
 		glActiveTexture(GL_TEXTURE1);
 
-		int counter = 1;
-
 		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
 			counter++;
-
-		/*switch(0)
-		{
-		case counter % 2 == 0:
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			break;
-		case counter % 2 == 1:
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		}*/
-
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);	//GL_LINE
 		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)

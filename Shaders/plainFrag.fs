@@ -37,11 +37,10 @@ void main()
     //float spec = pow(max(dot(normal, halfwayDir), 0.0), shininess);
     //vec3 specular = lightColor * spec;
 
-    vec3 col = vec3(0.6,0.1,0.2);
+    vec3 col = vec3(0.8,0.8,0.8);
   
     vec3 viewDir = normalize(eyePos - gWorldPos_FS_in);
 	vec3 norm = normalize(gnorms);
-	vec3 ambient = dirLight.ambient * mat.ambient;     
     vec3 lightDir = normalize(-dirLight.direction);
     // diffuse shading
     float diff = max(dot(norm, dirLight.direction), 0.0);
@@ -61,19 +60,20 @@ void main()
     
     // combine results
    
-   float height = gWorldPos_FS_in.y/scale;
+    float height = gWorldPos_FS_in.y/scale;
     vec4 green = vec4(0.3, 0.35, 0.15, 0.5);
     vec4 gray = vec4(0.5, 0.4, 0.5, 0.5);
-    vec4 brown = vec4(0.5, 0.0, 0.0, 0.0);
+    vec4 brown = vec4(0.5, 0.0, 0.0, 0.5);
 
     if(height > 0.4)
-        col = vec3(mix(green, gray, smoothstep(0.3, 1.0, height)).rgb);
+        vec3 col = (mix(green, gray, smoothstep(0.3, 1.0, height)).rgb);
     else if(height > 0.8)
-        col = vec3(mix(gray, brown, smoothstep(0.3, 1.0, height)).rgb);
+        vec3 col = (mix(gray, brown, smoothstep(0.3, 1.0, height)).rgb);
 
+	vec3 ambient = dirLight.ambient * mat.ambient;     
     vec3 diffuse  = dirLight.diffuse  * (diff * mat.diffuse);
     vec3 specular = dirLight.specular * (spec * mat.specular);
-    FragColor = vec4(col * (ambient + diffuse + specular), 1.0f);
+    FragColor = vec4((ambient + diffuse + specular), 1.0f);
     //FragColor = vec4((ambient+diffuse),1.0f);
     //FragColor =  texture(texture1, TexCoords);
     //FragColor = vec4(norms,1.0f);
