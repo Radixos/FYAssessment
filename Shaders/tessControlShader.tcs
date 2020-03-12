@@ -18,6 +18,7 @@ uniform float lambda;
 
 out vec3 posTC[];
 out vec2 tcTexCoords[];
+out vec3 eyePosTC[];
 
 float GetTessLevel(float dist1, float dist2)
 {
@@ -56,6 +57,7 @@ void main()
    }
 
    // pass through position and normal information
-   posTC[gl_InvocationID]  = FragPos[gl_InvocationID];
+   posTC[gl_InvocationID] = FragPos[gl_InvocationID];
+   eyePosTC[gl_InvocationID] = eyePos;
    tcTexCoords[gl_InvocationID] = TexCoords[gl_InvocationID];
 }

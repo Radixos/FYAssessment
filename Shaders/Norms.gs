@@ -4,13 +4,16 @@ layout(triangle_strip, max_vertices = 3) out;
 vec3 getNormal();
 
 in vec3 posES[];
-in vec3 eyePos[];
 //in vec2 teTexCoords[];
 in vec3 norms[];
+in float visibilityES[];
+in float teScale[];
 
 //out vec3 gNormals;
 out vec3 gWorldPos_FS_in;
 out vec3 gnorms;
+out float gVisibility;
+out float gScale;
 
 void main()
 {
@@ -20,6 +23,8 @@ void main()
       gWorldPos_FS_in = posES[i];
       //gNormals = getNormal();  
 	  gnorms = norms[i];
+	  gScale = teScale[i];
+	  gVisibility = visibilityES[i];
       EmitVertex();
    }
      EndPrimitive();

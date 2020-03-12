@@ -1,10 +1,11 @@
 #version 330 core
 out vec4 FragColor;
-//out vec3 colour;
 
 in vec2 TexCoords;
 in vec3 gWorldPos_FS_in;
 in vec3 gnorms;
+in float gScale;
+in float gVisibility;
 
 struct Material {
     vec3 ambient;
@@ -22,31 +23,30 @@ struct DirLight {
 
 uniform DirLight dirLight;
 uniform Material mat;
-//uniform vec3 lightPos;
 uniform vec3 eyePos;
 uniform bool blinn;
-uniform int scale;
-//uniform vec3 colour;
+uniform bool fog;
 
 void main()
 {
-    //vec3 lightDir   = normalize(lightPos - FragPos);
-    //vec3 viewDir    = normalize(eyePos - FragPos);
-    //vec3 halfwayDir = normalize(lightDir + viewDir);
+    vec3 col = vec3(0.2,0.2,0.2);
 
-    //float spec = pow(max(dot(normal, halfwayDir), 0.0), shininess);
-    //vec3 specular = lightColor * spec;
-
-    vec3 col = vec3(0.8,0.8,0.8);
+    float height = gWorldPos_FS_in.y / gScale;
+    vec4 green = vec4(0.25f, 0.55f, 0.25f, 0.5f);
+    vec4 gray = vec4(0.5f, 0.4f, 0.5f, 0.5f);
+    vec4 brown = vec4(0.5f, 0.5f, 0.2f, 0.5f);
+    vec4 blue = vec4(0.25f, 0.25f, 0.55f, 0.5f);
   
     vec3 viewDir = normalize(eyePos - gWorldPos_FS_in);
-	vec3 norm = normalize(gnorms);
+    vec3 norm = normalize(gnorms);
     vec3 lightDir = normalize(-dirLight.direction);
+
     // diffuse shading
     float diff = max(dot(norm, dirLight.direction), 0.0);
-    // specular shading
 
+    // specular shading
     float spec = 0.f;
+
     if(blinn)
     {
         vec3 helfwayDir = normalize(dirLight.direction + viewDir);
@@ -58,30 +58,27 @@ void main()
         spec = pow(max(dot(viewDir, reflectDir), 0.0), mat.shininess);
     }
     
-    // combine results
-   
-    float height = gWorldPos_FS_in.y/scale;
-    vec4 green = vec4(0.3, 0.35, 0.15, 0.5);
-    vec4 gray = vec4(0.5, 0.4, 0.5, 0.5);
-    vec4 brown = vec4(0.5, 0.0, 0.0, 0.5);
-
-    if(height > 0.4)
-        vec3 col = (mix(green, gray, smoothstep(0.3, 1.0, height)).rgb);
-    else if(height > 0.8)
-        vec3 col = (mix(gray, brown, smoothstep(0.3, 1.0, height)).rgb);
-
-	vec3 ambient = dirLight.ambient * mat.ambient;     
+    vec3 ambient = dirLight.ambient * mat.ambient;     
     vec3 diffuse  = dirLight.diffuse  * (diff * mat.diffuse);
     vec3 specular = dirLight.specular * (spec * mat.specular);
-    FragColor = vec4((ambient + diffuse + specular), 1.0f);
-    //FragColor = vec4((ambient+diffuse),1.0f);
-    //FragColor =  texture(texture1, TexCoords);
-    //FragColor = vec4(norms,1.0f);
 
+    if(height < 0.1f)
+        col = vec3(mix(blue, green, smoothstep(0.05f, 0.1f, height)).rgb);
+    else if(height < 0.5f)
+        col = vec3(mix(green, gray, smoothstep(0.15f, 0.5f, height)).rgb);
+    else if(height < 0.8f)
+        col = vec3(mix(gray, brown, smoothstep(0.55f, 0.8f, height)).rgb);
+    else
+        col = vec3(gray.rgb);
 
-    //FragColor = vec4(0.2,0.8,0.3,1.0);
-    
-    
+    vec4 result = vec4((ambient + diffuse + specular) * col, 1.0f);
 
+    if(fog)
+    {
+        FragColor = mix(vec4(0.4f, 0.4f, 0.4f, 0.5f), result, gVisibility);
+    }
+    else
+    {
+        FragColor = result;
+    }
 }
-	

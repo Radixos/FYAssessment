@@ -50,6 +50,14 @@ double counter = 1;
 bool blinn = false;
 bool blinnKeyPressed = false;
 
+int blinnCounter = 1;
+
+bool fog = false;
+bool fogKeyPressed = false;
+
+int fogCounter = 1;
+
+
 int main()
 {
 	glfwInit();
@@ -109,7 +117,7 @@ int main()
 		glm::mat4 model = glm::mat4(1.0f);
 	    shader.use();
 		shader.setInt("heightMap", 0);
-		shader.setInt("scale", 50);
+		shader.setFloat("scale", 50);
 		shader.setFloat("alpha", 15.f);
 		shader.setFloat("lambda", 0.0105f / 5.f);
 	    shader.setMat4("projection", projection);
@@ -117,9 +125,22 @@ int main()
 		shader.setMat4("model", model);
 		shader.setVec3("eyePos", camera.Position);
 		shader.setInt("blinn", blinn);
-		shader.setVec3("colour", 0.0f, 0.0f, 0.0f);
+		shader.setFloat("DENS", 0.005);
+		shader.setFloat("G", 1.2);
+		shader.setInt("fog", fog);
+		//shader.setFloat("visibility", 0);
+		
+		if (blinnCounter > 0)
+		{
+			std::cout << (blinn ? "Blinn-Phong" : "Phong") << std::endl;
+			blinnCounter--;
+		}
 
-		std::cout << (blinn ? "Blinn-Phong" : "Phong") << std::endl;
+		if (fogCounter > 0)
+		{
+			std::cout << (fog ? "FogOn" : "FogOff") << std::endl;
+			fogCounter--;
+		}
 
 		//light properties
 		shader.setVec3("dirLight.direction", dirLightPos);
@@ -134,9 +155,6 @@ int main()
 
 		glBindTexture(GL_TEXTURE_2D, heightMap);
 		glActiveTexture(GL_TEXTURE1);
-
-		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-			counter++;
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);	//GL_LINE
 		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
@@ -167,7 +185,7 @@ void processInput(GLFWwindow *window)
 		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 			counter += 0.03;
 
-	if (counter > 1)
+	if (counter > 0.5)
 		if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
 			counter -= 0.03;
 		
@@ -186,10 +204,22 @@ void processInput(GLFWwindow *window)
 	{
 		blinn = !blinn;
 		blinnKeyPressed = true;
+		blinnCounter++;
 	}
 	if (glfwGetKey(window, GLFW_KEY_B) == GLFW_RELEASE)
 	{
 		blinnKeyPressed = false;
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS && !fogKeyPressed)
+	{
+		fog = !fog;
+		fogKeyPressed = true;
+		fogCounter++;
+	}
+	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_RELEASE)
+	{
+		fogKeyPressed = false;
 	}
 }
 

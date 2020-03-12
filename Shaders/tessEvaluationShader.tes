@@ -15,17 +15,22 @@ uniform mat4 projection;
 
 //uniform int texture1;
 uniform sampler2D heightMap;
-uniform int scale;
+uniform float scale;
+
+uniform float DENS;
+uniform float G;
 
 // read in vector arrays from previous shader
 in vec3 posTC[];
 in vec2 tcTexCoords[];
-//in int heightMap[];
+in vec3 eyePosTC[];
 
 // pass along the interpolated values
 out vec3 posES;
 out vec2 teTexCoords;
 out vec3 norms;
+out float teScale;
+out float visibilityES;
 
 void main()
 {
@@ -34,6 +39,7 @@ void main()
 
 	vec3 posES = interpolate3D(posTC[0], posTC[1], posTC[2]);
 	teTexCoords = interpolate2D(tcTexCoords[0], tcTexCoords[1], tcTexCoords[2]);
+	vec3 eyePosTC2 = interpolate3D(eyePosTC[0], eyePosTC[1], eyePosTC[2]);
 
 	float right = (textureOffset(heightMap, teTexCoords, ivec2(1, 0)).r)*scale;
 	float left = (textureOffset(heightMap, teTexCoords, ivec2(-1, 0)).r)*scale;
@@ -48,6 +54,14 @@ void main()
 
 	//transform vertex to clip space  - NOTE: WE NEED TO DO IT HERE NOW and not in vertex shader
 	//gl_Position = projection * view * vec4(posES, 1.0);
+
+	//fog
+	float visibilityES;
+	float distanceFromCamera = distance(eyePosTC2, posES);
+	visibilityES = exp(-pow((distanceFromCamera*DENS),G));
+	visibilityES = clamp(visibilityES, 0.0f, 1.0f);
+
+	teScale = scale;
 }
 
 //basic linear interpolation
