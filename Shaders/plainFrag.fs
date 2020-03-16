@@ -32,10 +32,11 @@ void main()
     vec3 col = vec3(0.2,0.2,0.2);
 
     float height = gWorldPos_FS_in.y / gScale;
-    vec4 green = vec4(0.25f, 0.55f, 0.25f, 0.5f);
-    vec4 gray = vec4(0.5f, 0.4f, 0.5f, 0.5f);
-    vec4 brown = vec4(0.5f, 0.5f, 0.2f, 0.5f);
     vec4 blue = vec4(0.25f, 0.25f, 0.55f, 0.5f);
+    vec4 yellow = vec4(0.75f, 0.7f, 0.3f, 0.5f);
+    vec4 green = vec4(0.25f, 0.55f, 0.25f, 0.5f);
+    vec4 brown = vec4(0.5f, 0.5f, 0.2f, 0.5f);
+    vec4 gray = vec4(0.5f, 0.4f, 0.5f, 0.5f);
   
     vec3 viewDir = normalize(eyePos - gWorldPos_FS_in);
     vec3 norm = normalize(gnorms);
@@ -63,11 +64,13 @@ void main()
     vec3 specular = dirLight.specular * (spec * mat.specular);
 
     if(height < 0.1f)
-        col = vec3(mix(blue, green, smoothstep(0.05f, 0.1f, height)).rgb);
+        col = vec3(mix(blue, yellow, smoothstep(0.01f, 0.12f, height)).rgb);
+    else if(height < 0.15f)
+        col = vec3(mix(yellow, green, smoothstep(0.08f, 0.16f, height)).rgb);
     else if(height < 0.5f)
-        col = vec3(mix(green, gray, smoothstep(0.15f, 0.5f, height)).rgb);
-    else if(height < 0.8f)
-        col = vec3(mix(gray, brown, smoothstep(0.55f, 0.8f, height)).rgb);
+        col = vec3(mix(green, brown, smoothstep(0.1f, 0.6f, height)).rgb);
+    else if(height < 0.85f)
+        col = vec3(mix(brown, gray, smoothstep(0.5f, 0.9f, height)).rgb);
     else
         col = vec3(gray.rgb);
 
@@ -75,7 +78,7 @@ void main()
 
     if(fog)
     {
-        FragColor = mix(vec4(0.4f, 0.4f, 0.4f, 0.5f), result, gVisibility);
+        FragColor = mix(vec4(0.4f, 0.4f, 0.4f, 1.0f), result, gVisibility);
     }
     else
     {
