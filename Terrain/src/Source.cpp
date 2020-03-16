@@ -110,7 +110,7 @@ int main()
 		processInput(window);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+		glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
 		glBindVertexArray(VAO);
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1200.0f);
 		glm::mat4 view = camera.GetViewMatrix();
@@ -118,15 +118,15 @@ int main()
 	    shader.use();
 		shader.setInt("heightMap", 0);
 		shader.setFloat("scale", 50);
-		shader.setFloat("alpha", 15.f);
+		shader.setFloat("alpha", 20.f);
 		shader.setFloat("lambda", 0.0105f / 5.f);
 	    shader.setMat4("projection", projection);
 		shader.setMat4("view", view);
 		shader.setMat4("model", model);
 		shader.setVec3("eyePos", camera.Position);
 		shader.setInt("blinn", blinn);
-		shader.setFloat("DENS", 0.005);
-		shader.setFloat("G", 1.2);
+		shader.setFloat("DENS", 0.003);
+		shader.setFloat("G", 2.5);
 		shader.setInt("fog", fog);
 		//shader.setFloat("visibility", 0);
 		
@@ -181,13 +181,13 @@ void processInput(GLFWwindow *window)
 		glfwSetWindowShouldClose(window, true);
 
 	
-	if (counter < 10)
+	if (counter < 15)
 		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-			counter += 0.03;
+			counter += 0.04;
 
 	if (counter > 0.5)
 		if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-			counter -= 0.03;
+			counter -= 0.05;
 		
 	speed = deltaTime * (float)counter;
 

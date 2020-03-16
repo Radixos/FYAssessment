@@ -1,4 +1,5 @@
 #include "Terrain.h"
+#include <time.h>
 
 
 //Terrain constructors
@@ -8,6 +9,11 @@ Terrain::Terrain(int widthIn, int heightIn, int stepSizeIn)
 	height = heightIn;
 	stepSize = stepSizeIn;
 	makeVertices(&vertices);
+
+	srand(time(NULL));
+	seed = rand();
+	std::cout << seed;
+	perlin.setSeed(seed);
 
 }
 
@@ -76,6 +82,25 @@ void Terrain::makeVertex(int x, int y, std::vector<float> *vertices) {
    // add texture coords
 	vertices->push_back((float)x / (width*stepSize));
 	vertices->push_back((float)y / (height*stepSize));
+}
 
+double Terrain::cycleOctaves(glm::vec3 pos, int numOctaves)
+{
+	float total = 0.0f;
+	float maxAmplitude = 0.0f;
 
+	float amplitude = 100.0f;
+	float frequency = 0.005f;
+
+	for (int i = 0; i < numOctaves; i++)
+	{
+		double x = pos.x * frequency;
+		double y = pos.y * frequency;
+		total += perlin.noise(x, y, 0.1) * amplitude;
+		maxAmplitude += amplitude;
+		frequency *= 2;
+		amplitude /= 2;
+	}
+
+	return (total / maxAmplitude);
 }
