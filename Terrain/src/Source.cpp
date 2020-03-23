@@ -117,7 +117,7 @@ int main()
 		glm::mat4 model = glm::mat4(1.0f);
 	    shader.use();
 		shader.setInt("heightMap", 0);
-		shader.setFloat("scale", 50);
+		shader.setFloat("scale", 100);
 		shader.setFloat("alpha", 20.f);
 		shader.setFloat("lambda", 0.0105f / 5.f);
 	    shader.setMat4("projection", projection);
@@ -128,6 +128,7 @@ int main()
 		shader.setFloat("DENS", 0.003);
 		shader.setFloat("G", 2.5);
 		shader.setInt("fog", fog);
+		shader.setInt("octaves", 5);
 		//shader.setFloat("visibility", 0);
 		
 		if (blinnCounter > 0)
@@ -310,7 +311,6 @@ void setVAO(vector <float> vertices) {
 	//texture
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-	
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);

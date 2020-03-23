@@ -20,6 +20,8 @@ uniform float scale;
 uniform float DENS;
 uniform float G;
 
+uniform int octaves;
+
 // read in vector arrays from previous shader
 in vec3 posTC[];
 in vec2 tcTexCoords[];
@@ -32,24 +34,72 @@ out vec3 norms;
 out float teScale;
 out float visibilityES;
 
+float hash(float n)
+{
+	return fract(sin(n) * 753.5453123);
+}
+
+float snoise(vec3 x)
+{
+	vec3 p = floor(x);
+	vec3 f = fract(x);
+
+	f = f * f * (3.0f - (2.0f * f));
+
+	float n = p.x + p.y * 157.0f + 113.0f * p.z;
+	return mix(mix(mix(hash(n + 0.0f), hash(n + 1.0f), f.x),
+		   mix(hash(n + 157.0f), hash(n + 158.0f), f.x), f.y),
+		   mix(mix(hash(n + 113.0f), hash(n + 114.0f), f.x),
+		   mix(hash(n + 270.0f), hash(n + 271.0f), f.x), f.y), f.z);
+}
+
+float cycleOctaves(vec3 pos, int numOctaves)
+{
+	float total = -55.0f;
+	float maxAmplitude = -60.0f;
+
+	float amplitude = 100.0f;
+	float frequency = 0.012f;
+
+	for (int i = 0; i < numOctaves; i++)
+	{
+		total += snoise(pos * frequency) * amplitude;
+		maxAmplitude += amplitude;
+		frequency *= 2;
+		amplitude /= 2;
+	}
+
+	return (total / maxAmplitude);
+}
+
 void main()
 {
     // interpolate the normal and xyz position using the linear interpolation function
     // use 3D because they are in three dimensions; 2D also included for uv texture coordinates
 
 	posES = interpolate3D(posTC[0], posTC[1], posTC[2]);
-	teTexCoords = interpolate2D(tcTexCoords[0], tcTexCoords[1], tcTexCoords[2]);
+	//teTexCoords = interpolate2D(tcTexCoords[0], tcTexCoords[1], tcTexCoords[2]);
 	vec3 eyePosTC2 = interpolate3D(eyePosTC[0], eyePosTC[1], eyePosTC[2]);
 
-	float right = (textureOffset(heightMap, teTexCoords, ivec2(1, 0)).r)*scale;
-	float left = (textureOffset(heightMap, teTexCoords, ivec2(-1, 0)).r)*scale;
-	float up = (textureOffset(heightMap, teTexCoords, ivec2(0, 1)).r)*scale;
-	float down = (textureOffset(heightMap, teTexCoords, ivec2(0, -1)).r)*scale;
+	//float right = (textureOffset(heightMap, teTexCoords, ivec2(1, 0)).r)*scale;
+	//float left = (textureOffset(heightMap, teTexCoords, ivec2(-1, 0)).r)*scale;
+	//float up = (textureOffset(heightMap, teTexCoords, ivec2(0, 1)).r)*scale;
+	//float down = (textureOffset(heightMap, teTexCoords, ivec2(0, -1)).r)*scale;
+
+	vec3 R = vec3(posES.x + 1.f, posES.y, posES.z)*scale;
+	vec3 L = vec3(posES.x - 1.f, posES.y, posES.z)*scale;
+	vec3 U = vec3(posES.x, posES.y, posES.z + 1.f)*scale;
+	vec3 D = vec3(posES.x, posES.y, posES.z - 1.f)*scale;
+
+	float right = cycleOctaves(R, octaves);
+	float left = cycleOctaves(L, octaves);
+	float up = cycleOctaves(U, octaves);
+	float down = cycleOctaves(D, octaves);
 
 	norms = normalize(vec3((left - right), 2.0, (up - down)));
 
-	float height = (texture(heightMap, teTexCoords).x);
-	posES.y = height * scale;
+	//float height = (texture(heightMap, teTexCoords).x);
+	posES.y = cycleOctaves(posES, 5) * scale;
 	teScale = scale;
 	gl_Position = projection * view * model * vec4(posES, 1.0);
 
@@ -60,8 +110,6 @@ void main()
 	float distanceFromCamera = distance(eyePosTC2, posES);
 	visibilityES = exp(-pow((distanceFromCamera*DENS),G));
 	visibilityES = clamp(visibilityES, 0.0f, 1.0f);
-
-
 }
 
 //basic linear interpolation
@@ -74,43 +122,3 @@ vec3 interpolate3D(vec3 v0, vec3 v1, vec3 v2)
 {
    	return vec3(gl_TessCoord.x) * v0 + vec3(gl_TessCoord.y) * v1 + vec3(gl_TessCoord.z) * v2;
 }
-
-//float hash(float n)
-//{
-//	return fract(sin(n) * 753.5453123)
-//}
-//
-//float snoise(vec3 x)
-//{
-//	vec3 p = floor(x);
-//	vec3 f = fract(x);
-//
-//	f = f * f * (3.0f - (2.0f * f));
-//
-//	float n = p.x + p.y * 157.0f + 113.0f * p.z;
-//	return mix(mix(mix(hash(n + 0.0f), hash(n + 1.0f), f.x),
-//		   mix(hash(n + 157.0f), hash(n + 158.0f), f.x), f.y),
-//		   mix(mix(hash(n + 113.0f), hash(n + 114.0f), f.x),
-//		   mix(hash(n + 270.0f), hash(n + 271.0f), f.x), f.y,) f.z);
-//}
-//
-//cycleOctaves(vec3 pos, int numOctaves)
-//{
-//	float total = 0.0f;
-//	float maxAmplitude = 0.0f;
-//
-//	float amplitude = 100.0f;
-//	float frequency = 0.005f;
-//
-//	for (int i = 0; i < numOctaves; i++)
-//	{
-//		double x = pos.x * frequency;
-//		double y = pos.y * frequency;
-//		total += perlin.noise(x, z, 0.1) * amplitude;
-//		maxAmplitude += amplitude;
-//		frequency *= 2;
-//		amplitude /= 2;
-//	}
-//
-//	return (total / maxAmplitude);
-//}

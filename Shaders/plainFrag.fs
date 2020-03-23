@@ -10,7 +10,7 @@ in float gVisibility;
 struct Material {
     vec3 ambient;
     vec3 diffuse;
-    vec3 specular;    
+    vec3 specular;
     float shininess;
 };
 
@@ -32,7 +32,7 @@ void main()
     vec3 col = vec3(0.2,0.2,0.2);
 
     float height = gWorldPos_FS_in.y / gScale;
-    vec4 blue = vec4(0.25f, 0.25f, 0.55f, 0.5f);
+    vec4 blue = vec4(0.25f, 0.4f, 0.5f, 0.5f);
     vec4 yellow = vec4(0.75f, 0.7f, 0.3f, 0.5f);
     vec4 green = vec4(0.25f, 0.55f, 0.25f, 0.5f);
     vec4 brown = vec4(0.5f, 0.5f, 0.2f, 0.5f);
