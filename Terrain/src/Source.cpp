@@ -20,7 +20,7 @@
 // settings
 const unsigned int SCR_WIDTH = 1200;
 const unsigned int SCR_HEIGHT = 900;
-glm::vec3 dirLightPos(0.1f, 0.6f, 0.2f);
+glm::vec3 dirLightPos(0.1f, 1.6f, 0.2f);
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -37,7 +37,10 @@ float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
 //arrays
-unsigned int VBO, VAO;
+unsigned int VBO, VAO, FBO;
+
+unsigned int textureColorBuffer;
+unsigned int textureDepthBuffer;
 
 // timing
 float deltaTime = 0.0f;
@@ -84,13 +87,17 @@ int main()
 	}
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
+	//glEnable(GL_STENCIL_TEST);	//???
 	glCullFace(GL_BACK);
 
 	// simple vertex and fragment shader - add your own tess and geo shader
 	Shader shader("..\\shaders\\plainVert.vs", "..\\shaders\\plainFrag.fs", "..\\shaders\\Norms.gs", "..\\shaders\\tessControlShader.tcs", "..\\shaders\\tessEvaluationShader.tes");
-
+	//Shader for post proc with vs and fs
+	//first pass with shader
+	//second with post
+	//renderquad on learnopengl
 	//Terrain Constructor ; number of grids in width, number of grids in height, gridSize
-	Terrain terrain(50, 50,10);
+	Terrain terrain(50, 50, 10);
 	std::vector<float> vertices= terrain.getVertices();
 
 	unsigned int heightMap = loadTexture("..\\resources\\heightMap4.png");
@@ -109,13 +116,19 @@ int main()
 
 		processInput(window);
 
+		//glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
+		//glStencilFunc(GL_EQUAL, 1, 0xFF);
 		glBindVertexArray(VAO);
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1200.0f);
 		glm::mat4 view = camera.GetViewMatrix();
 		glm::mat4 model = glm::mat4(1.0f);
 	    shader.use();
+		//glEnable(GL_DEPTH_TEST);
+		//glClearColor(GL_RED, GL_GREEN, GL_BLUE, 1.0);
+		//glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
+		//glBindVertexArray(VAO);
 		shader.setInt("heightMap", 0);
 		shader.setFloat("scale", 100);
 		shader.setFloat("alpha", 20.f);
@@ -314,4 +327,18 @@ void setVAO(vector <float> vertices) {
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+}
+
+void setFBOcolour()
+{
+	glGenFramebuffers(1, &FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
+	glGenTextures(1, &textureColorBuffer);
+	glBindTexture(GL_TEXTURE_2D, textureColorBuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glBindFramebuffer(GL_FRAMEBUFFER, textureColorBuffer);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorBuffer, 0);
 }

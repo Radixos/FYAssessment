@@ -55,11 +55,11 @@ float snoise(vec3 x)
 
 float cycleOctaves(vec3 pos, int numOctaves)
 {
-	float total = -55.0f;
-	float maxAmplitude = -60.0f;
+	float total = -45.0f;
+	float maxAmplitude = -75.0f;
 
-	float amplitude = 100.0f;
-	float frequency = 0.012f;
+	float amplitude = 75.0f;
+	float frequency = 0.007f;
 
 	for (int i = 0; i < numOctaves; i++)
 	{
@@ -69,7 +69,7 @@ float cycleOctaves(vec3 pos, int numOctaves)
 		amplitude /= 2;
 	}
 
-	return (total / maxAmplitude);
+	return (total / maxAmplitude)*scale;
 }
 
 void main()
@@ -86,20 +86,20 @@ void main()
 	//float up = (textureOffset(heightMap, teTexCoords, ivec2(0, 1)).r)*scale;
 	//float down = (textureOffset(heightMap, teTexCoords, ivec2(0, -1)).r)*scale;
 
-	vec3 R = vec3(posES.x + 1.f, posES.y, posES.z)*scale;
-	vec3 L = vec3(posES.x - 1.f, posES.y, posES.z)*scale;
-	vec3 U = vec3(posES.x, posES.y, posES.z + 1.f)*scale;
-	vec3 D = vec3(posES.x, posES.y, posES.z - 1.f)*scale;
+	vec3 R = vec3(posES.x + 1.f, posES.y, posES.z);
+	vec3 L = vec3(posES.x - 1.f, posES.y, posES.z);
+	vec3 U = vec3(posES.x, posES.y, posES.z + 1.f);
+	vec3 D = vec3(posES.x, posES.y, posES.z - 1.f);
 
 	float right = cycleOctaves(R, octaves);
 	float left = cycleOctaves(L, octaves);
 	float up = cycleOctaves(U, octaves);
 	float down = cycleOctaves(D, octaves);
 
-	norms = normalize(vec3((left - right), 2.0, (up - down)));
+	norms = normalize(vec3((left - right), 4.0, (up - down)));
 
 	//float height = (texture(heightMap, teTexCoords).x);
-	posES.y = cycleOctaves(posES, 5) * scale;
+	posES.y = cycleOctaves(posES, 5);
 	teScale = scale;
 	gl_Position = projection * view * model * vec4(posES, 1.0);
 
