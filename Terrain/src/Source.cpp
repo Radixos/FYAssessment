@@ -29,6 +29,7 @@ void processInput(GLFWwindow *window);
 unsigned int loadTexture(char const * path);
 //unsigned int loadTexture2(char const * path);
 void setVAO(vector <float> vertices);
+void renderQuad();
 
 // camera
 Camera camera(glm::vec3(260,50,300));
@@ -37,7 +38,7 @@ float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
 //arrays
-unsigned int VBO, VAO, FBO;
+unsigned int VBO, VAO, FBO, quadVAO, quadVBO;
 
 unsigned int textureColorBuffer;
 unsigned int textureDepthBuffer;
@@ -92,6 +93,8 @@ int main()
 
 	// simple vertex and fragment shader - add your own tess and geo shader
 	Shader shader("..\\shaders\\plainVert.vs", "..\\shaders\\plainFrag.fs", "..\\shaders\\Norms.gs", "..\\shaders\\tessControlShader.tcs", "..\\shaders\\tessEvaluationShader.tes");
+	Shader postProcShader("..\\shaders\\plainVert.vs", "..\\shaders\\depthFrag.fs");
+	
 	//Shader for post proc with vs and fs
 	//first pass with shader
 	//second with post
@@ -116,7 +119,7 @@ int main()
 
 		processInput(window);
 
-		//glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
 		//glStencilFunc(GL_EQUAL, 1, 0xFF);
@@ -142,6 +145,8 @@ int main()
 		shader.setFloat("G", 2.5);
 		shader.setInt("fog", fog);
 		shader.setInt("octaves", 5);
+		shader.setFloat("near_plane", 1);
+		shader.setFloat("far_plane", 1);
 		//shader.setFloat("visibility", 0);
 		
 		if (blinnCounter > 0)
@@ -178,6 +183,14 @@ int main()
 
 		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) 
 		  camera.printCameraCoords();
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glDisable(GL_DEPTH_TEST);
+		postProcShader.use();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, textureColorBuffer);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //GL_LINE
+		renderQuad();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -341,4 +354,31 @@ void setFBOcolour()
 	glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glBindFramebuffer(GL_FRAMEBUFFER, textureColorBuffer);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorBuffer, 0);
+}
+
+void renderQuad()	//???
+{
+	if (quadVAO == 0)
+	{
+		float quadVertices[] = {
+			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+			 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+			 1.0f, -1.0f, 0.0f, 1.0f, 0.0f
+		};
+		glGenVertexArrays(1, &quadVAO);
+		glGenBuffers(1, &quadVBO);
+		glBindVertexArray(quadVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+		
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+		
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	}
+	glBindVertexArray(quadVAO);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glBindVertexArray(0);
 }

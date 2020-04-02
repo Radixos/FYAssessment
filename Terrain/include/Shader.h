@@ -41,20 +41,16 @@ public:
 			// open files
 			vShaderFile.open(vertexPath);
 			fShaderFile.open(fragmentPath);
-			tcShaderFile.open(tessCPath);
-			std::stringstream vShaderStream, fShaderStream, tcShaderStream;
+			std::stringstream vShaderStream, fShaderStream;
 			// read file's buffer contents into streams
 			vShaderStream << vShaderFile.rdbuf();
 			fShaderStream << fShaderFile.rdbuf();
-			tcShaderStream << tcShaderFile.rdbuf();
 			// close file handlers
 			vShaderFile.close();
 			fShaderFile.close();
-			tcShaderFile.close();
 			// convert stream into string
 			vertexCode = vShaderStream.str();
 			fragmentCode = fShaderStream.str();
-			tessCcode = tcShaderStream.str();
 			// if geometry shader path is present, also load a geometry shader
 			if (geometryPath != nullptr)
 			{
