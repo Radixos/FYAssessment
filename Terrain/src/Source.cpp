@@ -98,7 +98,6 @@ int main()
 	//Shader for post proc with vs and fs
 	//first pass with shader
 	//second with post
-	//renderquad on learnopengl
 	//Terrain Constructor ; number of grids in width, number of grids in height, gridSize
 	Terrain terrain(50, 50, 10);
 	std::vector<float> vertices= terrain.getVertices();
@@ -119,11 +118,7 @@ int main()
 
 		processInput(window);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
-		//glStencilFunc(GL_EQUAL, 1, 0xFF);
-		glBindVertexArray(VAO);
+		
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1200.0f);
 		glm::mat4 view = camera.GetViewMatrix();
 		glm::mat4 model = glm::mat4(1.0f);
@@ -175,22 +170,28 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, heightMap);
 		glActiveTexture(GL_TEXTURE1);
 
+		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+		glEnable(GL_DEPTH_TEST);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
+		//glStencilFunc(GL_EQUAL, 1, 0xFF);
+		glBindVertexArray(VAO);
+
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);	//GL_LINE
 		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glDrawArrays(GL_PATCHES, 0, vertices.size() / 3);
 
-
-		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) 
-		  camera.printCameraCoords();
-
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glDisable(GL_DEPTH_TEST);
 		postProcShader.use();
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, textureColorBuffer);
+		glBindTexture(GL_TEXTURE_2D, heightMap);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //GL_LINE
 		renderQuad();
+
+		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+			camera.printCameraCoords();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

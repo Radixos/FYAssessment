@@ -1,13 +1,13 @@
 ﻿  Source.cpp
-c:\users\radix\onedrive\pulpit\uni\shaderassignment\terrain\terrain\src\source.cpp(116): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\radix\onedrive\pulpit\uni\shaderassignment\terrain\terrain\src\source.cpp(144): warning C4305: 'argument': truncation from 'double' to 'float'
-c:\users\radix\onedrive\pulpit\uni\shaderassignment\terrain\terrain\src\source.cpp(170): warning C4305: 'argument': truncation from 'double' to 'float'
-c:\users\radix\onedrive\pulpit\uni\shaderassignment\terrain\terrain\src\source.cpp(171): warning C4305: 'argument': truncation from 'double' to 'float'
-c:\users\radix\onedrive\pulpit\uni\shaderassignment\terrain\terrain\src\source.cpp(266): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\radix\onedrive\pulpit\uni\shaderassignment\terrain\terrain\src\source.cpp(267): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\radix\onedrive\pulpit\uni\shaderassignment\terrain\terrain\src\source.cpp(271): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\radix\onedrive\pulpit\uni\shaderassignment\terrain\terrain\src\source.cpp(272): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\radix\onedrive\pulpit\uni\shaderassignment\terrain\terrain\src\source.cpp(274): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\radix\onedrive\pulpit\uni\shaderassignment\terrain\terrain\src\source.cpp(275): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\radix\onedrive\pulpit\uni\shaderassignment\terrain\terrain\src\source.cpp(284): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-  Terrain.vcxproj -> C:\Users\radix\OneDrive\Pulpit\Uni\ShaderAssignment\Terrain\Debug\Terrain.exe
+c:\users\radix\onedrive\pulpit\uni\shaderfy\terrain\terrain\src\source.cpp(115): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\radix\onedrive\pulpit\uni\shaderfy\terrain\terrain\src\source.cpp(139): warning C4305: 'argument': truncation from 'double' to 'float'
+c:\users\radix\onedrive\pulpit\uni\shaderfy\terrain\terrain\src\source.cpp(165): warning C4305: 'argument': truncation from 'double' to 'float'
+c:\users\radix\onedrive\pulpit\uni\shaderfy\terrain\terrain\src\source.cpp(166): warning C4305: 'argument': truncation from 'double' to 'float'
+c:\users\radix\onedrive\pulpit\uni\shaderfy\terrain\terrain\src\source.cpp(267): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\radix\onedrive\pulpit\uni\shaderfy\terrain\terrain\src\source.cpp(268): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\radix\onedrive\pulpit\uni\shaderfy\terrain\terrain\src\source.cpp(272): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\radix\onedrive\pulpit\uni\shaderfy\terrain\terrain\src\source.cpp(273): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\radix\onedrive\pulpit\uni\shaderfy\terrain\terrain\src\source.cpp(275): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\radix\onedrive\pulpit\uni\shaderfy\terrain\terrain\src\source.cpp(276): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\radix\onedrive\pulpit\uni\shaderfy\terrain\terrain\src\source.cpp(285): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  Terrain.vcxproj -> C:\Users\radix\OneDrive\Pulpit\Uni\ShaderFY\Terrain\Debug\Terrain.exe
