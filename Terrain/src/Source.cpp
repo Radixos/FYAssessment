@@ -29,6 +29,7 @@ void processInput(GLFWwindow *window);
 unsigned int loadTexture(char const * path);
 //unsigned int loadTexture2(char const * path);
 void setVAO(vector <float> vertices);
+void setFBOcolour();
 void renderQuad();
 
 // camera
@@ -93,7 +94,7 @@ int main()
 
 	// simple vertex and fragment shader - add your own tess and geo shader
 	Shader shader("..\\shaders\\plainVert.vs", "..\\shaders\\plainFrag.fs", "..\\shaders\\Norms.gs", "..\\shaders\\tessControlShader.tcs", "..\\shaders\\tessEvaluationShader.tes");
-	Shader postProcShader("..\\shaders\\plainVert.vs", "..\\shaders\\depthFrag.fs");
+	Shader postProcShader("..\\shaders\\simplePostVert.vs", "..\\shaders\\simplePostFrag.fs");
 	
 	//Shader for post proc with vs and fs
 	//first pass with shader
@@ -102,12 +103,15 @@ int main()
 	Terrain terrain(50, 50, 10);
 	std::vector<float> vertices= terrain.getVertices();
 
-	unsigned int heightMap = loadTexture("..\\resources\\heightMap4.png");
+	//unsigned int heightMap = loadTexture("..\\resources\\heightMap4.png");
 
-	shader.setInt("heightMap", 0);
+	shader.use();
+	//shader.setInt("heightMap", 0);
 	shader.setVec3("lightPos", dirLightPos);
 	
 	setVAO(vertices);
+
+	setFBOcolour();
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -140,6 +144,7 @@ int main()
 		shader.setFloat("G", 2.5);
 		shader.setInt("fog", fog);
 		shader.setInt("octaves", 5);
+		shader.setInt("scene", 0);
 		shader.setFloat("near_plane", 1);
 		shader.setFloat("far_plane", 1);
 		//shader.setFloat("visibility", 0);
@@ -167,13 +172,14 @@ int main()
 		shader.setVec3("mat.specular", 0.297f, 0.308f, 0.306f);
 		shader.setFloat("mat.shininess", 0.9f);
 
-		glBindTexture(GL_TEXTURE_2D, heightMap);
-		glActiveTexture(GL_TEXTURE1);
+		//glBindTexture(GL_TEXTURE_2D, heightMap);
+		//glActiveTexture(GL_TEXTURE1);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+		shader.use();
 		glEnable(GL_DEPTH_TEST);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//glStencilFunc(GL_EQUAL, 1, 0xFF);
 		glBindVertexArray(VAO);
 
@@ -186,7 +192,7 @@ int main()
 		glDisable(GL_DEPTH_TEST);
 		postProcShader.use();
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, heightMap);
+		glBindTexture(GL_TEXTURE_2D, textureColorBuffer);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //GL_LINE
 		renderQuad();
 
@@ -351,13 +357,13 @@ void setFBOcolour()
 	glGenTextures(1, &textureColorBuffer);
 	glBindTexture(GL_TEXTURE_2D, textureColorBuffer);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);	//GL_LINEAR
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);	//GL_LINEAR
 	glBindFramebuffer(GL_FRAMEBUFFER, textureColorBuffer);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorBuffer, 0);
 }
 
-void renderQuad()	//???
+void renderQuad()
 {
 	if (quadVAO == 0)
 	{
