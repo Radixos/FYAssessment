@@ -30,6 +30,7 @@ unsigned int loadTexture(char const * path);
 //unsigned int loadTexture2(char const * path);
 void setVAO(vector <float> vertices);
 void setFBOcolour();
+void setFBOdepth();
 void renderQuad();
 
 // camera
@@ -94,7 +95,7 @@ int main()
 
 	// simple vertex and fragment shader - add your own tess and geo shader
 	Shader shader("..\\shaders\\plainVert.vs", "..\\shaders\\plainFrag.fs", "..\\shaders\\Norms.gs", "..\\shaders\\tessControlShader.tcs", "..\\shaders\\tessEvaluationShader.tes");
-	Shader postProcShader("..\\shaders\\simplePostVert.vs", "..\\shaders\\simplePostFrag.fs");
+	Shader postProcShader("..\\shaders\\simplePostVert.vs", "..\\shaders\\depthFrag.fs");
 	
 	//Shader for post proc with vs and fs
 	//first pass with shader
@@ -112,6 +113,7 @@ int main()
 	setVAO(vertices);
 
 	setFBOcolour();
+	setFBOdepth();
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -192,7 +194,7 @@ int main()
 		glDisable(GL_DEPTH_TEST);
 		postProcShader.use();
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, textureColorBuffer);
+		glBindTexture(GL_TEXTURE_2D, textureDepthBuffer);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //GL_LINE
 		renderQuad();
 
@@ -351,6 +353,12 @@ void setVAO(vector <float> vertices) {
 
 void setFBOcolour()
 {
+	unsigned int rbo;
+	glGenRenderbuffers(1, &rbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
 	glGenFramebuffers(1, &FBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
@@ -361,6 +369,27 @@ void setFBOcolour()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);	//GL_LINEAR
 	glBindFramebuffer(GL_FRAMEBUFFER, textureColorBuffer);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorBuffer, 0);
+}
+
+void setFBOdepth()
+{
+	glGenFramebuffers(1, &FBO);
+
+	glGenTextures(1, &textureDepthBuffer);
+	glBindTexture(GL_TEXTURE_2D, textureDepthBuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SCR_HEIGHT, SCR_WIDTH, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, textureDepthBuffer, 0);
+
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void renderQuad()
