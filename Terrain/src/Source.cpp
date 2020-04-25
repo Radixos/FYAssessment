@@ -20,8 +20,10 @@
 // settings
 const unsigned int SCR_WIDTH = 1200;
 const unsigned int SCR_HEIGHT = 900;
-glm::vec3 dirLightPos(0.1f, 1.6f, 0.2f);
+const unsigned int SH_WIDTH = SCR_WIDTH;	//problem with window size here
+const unsigned int SH_HEIGHT = SCR_HEIGHT;	//problem with window size here
 
+glm::vec3 dirLightPos(0.1f, 1.6f, 0.2f);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -34,7 +36,7 @@ void setFBOdepth();
 void renderQuad();
 
 // camera
-Camera camera(glm::vec3(260,50,300));
+Camera camera(glm::vec3(260,100,300));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -62,6 +64,11 @@ bool fog = false;
 bool fogKeyPressed = false;
 
 int fogCounter = 1;
+
+bool shadow = false;
+bool shadowKeyPressed = false;
+
+int shadowCounter = 1;
 
 
 int main()
@@ -95,16 +102,14 @@ int main()
 
 	// simple vertex and fragment shader - add your own tess and geo shader
 	Shader shader("..\\shaders\\plainVert.vs", "..\\shaders\\plainFrag.fs", "..\\shaders\\Norms.gs", "..\\shaders\\tessControlShader.tcs", "..\\shaders\\tessEvaluationShader.tes");
-	Shader postProcShader("..\\shaders\\simplePostVert.vs", "..\\shaders\\depthFrag.fs");
-	
-	//Shader for post proc with vs and fs
-	//first pass with shader
-	//second with post
+	Shader postProcShader("..\\shaders\\simplePostVert.vs", "..\\shaders\\depthFrag.fs");	//simplePostFrag
+
 	//Terrain Constructor ; number of grids in width, number of grids in height, gridSize
 	Terrain terrain(50, 50, 10);
 	std::vector<float> vertices= terrain.getVertices();
 
 	//unsigned int heightMap = loadTexture("..\\resources\\heightMap4.png");
+	unsigned int shadowMap;
 
 	shader.use();
 	//shader.setInt("heightMap", 0);
@@ -112,8 +117,13 @@ int main()
 	
 	setVAO(vertices);
 
-	setFBOcolour();
+	//setFBOcolour();
 	setFBOdepth();
+
+	//postProcShader.use();
+	//postProcShader.setInt("shadowMap", 0);
+	//postProcShader.setFloat("near_plane", 1);
+	//postProcShader.setFloat("far_plane", 1000);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -133,7 +143,7 @@ int main()
 		//glClearColor(GL_RED, GL_GREEN, GL_BLUE, 1.0);
 		//glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
 		//glBindVertexArray(VAO);
-		shader.setInt("heightMap", 0);
+		//shader.setInt("heightMap", 0);
 		shader.setFloat("scale", 100);
 		shader.setFloat("alpha", 20.f);
 		shader.setFloat("lambda", 0.0105f / 5.f);
@@ -147,8 +157,18 @@ int main()
 		shader.setInt("fog", fog);
 		shader.setInt("octaves", 5);
 		shader.setInt("scene", 0);
-		shader.setFloat("near_plane", 1);
-		shader.setFloat("far_plane", 1);
+		shader.setInt("shadowBool", shadow);
+
+		glm::vec3 lightPos(-80, 350, -80);	//???
+		glm::vec3 lookingAt(400.f, 20.f, 400.f);
+		glm::mat4 lightView = glm::lookAt(lightPos, lookingAt, glm::vec3(0.0f, 1.0f, 0.0f));
+
+		float near_plane = 0.1f, far_plane = 1000.5f, ortho_size = 250.f;
+		glm::mat4 lightProjection = glm::ortho(-ortho_size, ortho_size, -ortho_size, ortho_size, near_plane, far_plane);
+
+		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+		shader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+
 		//shader.setFloat("visibility", 0);
 		
 		if (blinnCounter > 0)
@@ -163,6 +183,12 @@ int main()
 			fogCounter--;
 		}
 
+		if (shadowCounter > 0)
+		{
+			std::cout << (fog ? "ShadowOn" : "ShadowOff") << std::endl;
+			shadowCounter--;
+		}
+
 		//light properties
 		shader.setVec3("dirLight.direction", dirLightPos);
 		shader.setVec3("dirLight.ambient", 0.5f, 0.5f, 0.5f);
@@ -174,15 +200,12 @@ int main()
 		shader.setVec3("mat.specular", 0.297f, 0.308f, 0.306f);
 		shader.setFloat("mat.shininess", 0.9f);
 
-		//glBindTexture(GL_TEXTURE_2D, heightMap);
-		//glActiveTexture(GL_TEXTURE1);
-
 		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-		shader.use();
+		shader.setMat4("projection", lightProjection);
+		shader.setMat4("view", lightView);
 		glEnable(GL_DEPTH_TEST);
 		glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//glStencilFunc(GL_EQUAL, 1, 0xFF);
 		glBindVertexArray(VAO);
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);	//GL_LINE
@@ -191,11 +214,13 @@ int main()
 		glDrawArrays(GL_PATCHES, 0, vertices.size() / 3);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glDisable(GL_DEPTH_TEST);
-		postProcShader.use();
+		shader.setMat4("projection", projection);
+		shader.setMat4("view", view);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureDepthBuffer);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //GL_LINE
+		glDrawArrays(GL_PATCHES, 0, vertices.size() / 3);
 		renderQuad();
 
 		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
@@ -256,6 +281,17 @@ void processInput(GLFWwindow *window)
 	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_RELEASE)
 	{
 		fogKeyPressed = false;
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && !shadowKeyPressed)
+	{
+		shadow = !shadow;
+		shadowKeyPressed = true;
+		shadowCounter++;
+	}
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_RELEASE)
+	{
+		shadowKeyPressed = false;
 	}
 }
 
@@ -353,12 +389,6 @@ void setVAO(vector <float> vertices) {
 
 void setFBOcolour()
 {
-	unsigned int rbo;
-	glGenRenderbuffers(1, &rbo);
-	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
-
 	glGenFramebuffers(1, &FBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
@@ -369,6 +399,12 @@ void setFBOcolour()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);	//GL_LINEAR
 	glBindFramebuffer(GL_FRAMEBUFFER, textureColorBuffer);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorBuffer, 0);
+
+	unsigned int rbo;
+	glGenRenderbuffers(1, &rbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 }
 
 void setFBOdepth()
@@ -377,12 +413,15 @@ void setFBOdepth()
 
 	glGenTextures(1, &textureDepthBuffer);
 	glBindTexture(GL_TEXTURE_2D, textureDepthBuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SCR_HEIGHT, SCR_WIDTH, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SH_WIDTH, SH_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);	//GL_REPEAT
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);	//GL_REPEAT
+
+	float borderColor[] = {1.0, 1.0, 1.0, 1.0};
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, textureDepthBuffer, 0);

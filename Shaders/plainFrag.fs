@@ -26,9 +26,17 @@ uniform Material mat;
 uniform vec3 eyePos;
 uniform bool blinn;
 uniform bool fog;
+uniform bool shadowBool;
+uniform mat4 lightSpaceMatrix;
+uniform sampler2D shadowMap;
+
+float calcShadow(vec4 fragPosLightSpace, float bias);
 
 void main()
 {
+    vec4 fragPosLightSpace = lightSpaceMatrix * vec4(gWorldPos_FS_in, 1.0f);
+    float bias = 0.001; //max(0.005 * (1.0 - dot(tessNormals, dirLight.direction)), 0.001);
+
     vec3 col = vec3(0.2,0.2,0.2);
 
     float height = gWorldPos_FS_in.y / gScale;
@@ -78,8 +86,22 @@ void main()
         col = vec3(mix(brown, gray, smoothstep(0.5f, 0.9f, height)).rgb);
     else
         col = vec3(gray.rgb);
+    
+    float shadow;
 
-    vec4 result = vec4((ambient + diffuse + specular) * col, 1.0f);
+    if(shadowBool)
+    {
+        shadow = calcShadow(fragPosLightSpace, bias);
+    }
+    else
+    {
+        shadow = 0;
+    }
+
+    vec4 result = vec4((ambient + (1.0 - shadow)*(diffuse + specular)) * col, 1.0f);
+    
+    if(shadow > 0)
+        col = vec3(1.0f, 0.0f, 0.0f);
 
     if(fog)
     {
@@ -94,4 +116,33 @@ void main()
     {
         FragColor = result;
     }
+}
+
+float calcShadow(vec4 fragPosLightSpace, float bias)
+{
+    float shadow = 0.0f;
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    projCoords = projCoords * 0.5 + 0.5;
+    float closestDepth = texture(shadowMap, projCoords.xy).r;
+    float currentDepth = projCoords.z;
+    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+
+    for(int i = -1; i < 2; i++)
+    {
+        for(int j = -1; j < 2; j++)
+        {
+            float pcf = texture(shadowMap, projCoords.xy + vec2(i, j) * texelSize).r;
+            if(currentDepth - bias > pcf)
+            {
+                shadow += 1;
+            }
+        }
+    }
+    shadow = shadow/9;
+    //float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
+    if(projCoords.z > 1.0)
+    {
+        shadow = 0.0;
+    }
+    return shadow*.65;
 }
