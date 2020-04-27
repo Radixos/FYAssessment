@@ -20,8 +20,8 @@
 // settings
 const unsigned int SCR_WIDTH = 1200;
 const unsigned int SCR_HEIGHT = 900;
-const unsigned int SH_WIDTH = SCR_WIDTH;	//problem with window size here
-const unsigned int SH_HEIGHT = SCR_HEIGHT;	//problem with window size here
+const unsigned int SH_WIDTH = SCR_WIDTH*5;	//problem with window size here
+const unsigned int SH_HEIGHT = SCR_HEIGHT*5;	//problem with window size here
 
 glm::vec3 dirLightPos(0.1f, 1.6f, 0.2f);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -102,7 +102,7 @@ int main()
 
 	// simple vertex and fragment shader - add your own tess and geo shader
 	Shader shader("..\\shaders\\plainVert.vs", "..\\shaders\\plainFrag.fs", "..\\shaders\\Norms.gs", "..\\shaders\\tessControlShader.tcs", "..\\shaders\\tessEvaluationShader.tes");
-	Shader postProcShader("..\\shaders\\simplePostVert.vs", "..\\shaders\\depthFrag.fs");	//simplePostFrag
+	//Shader postProcShader("..\\shaders\\simplePostVert.vs", "..\\shaders\\depthFrag.fs");	//simplePostFrag
 
 	//Terrain Constructor ; number of grids in width, number of grids in height, gridSize
 	Terrain terrain(50, 50, 10);
@@ -163,7 +163,7 @@ int main()
 		glm::vec3 lookingAt(400.f, 20.f, 400.f);
 		glm::mat4 lightView = glm::lookAt(lightPos, lookingAt, glm::vec3(0.0f, 1.0f, 0.0f));
 
-		float near_plane = 0.1f, far_plane = 1000.5f, ortho_size = 250.f;
+		float near_plane = 0.1f, far_plane = 1000.5f, ortho_size = 350.f;
 		glm::mat4 lightProjection = glm::ortho(-ortho_size, ortho_size, -ortho_size, ortho_size, near_plane, far_plane);
 
 		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
@@ -185,7 +185,7 @@ int main()
 
 		if (shadowCounter > 0)
 		{
-			std::cout << (fog ? "ShadowOn" : "ShadowOff") << std::endl;
+			std::cout << (shadow ? "ShadowOn" : "ShadowOff") << std::endl;
 			shadowCounter--;
 		}
 
@@ -200,6 +200,7 @@ int main()
 		shader.setVec3("mat.specular", 0.297f, 0.308f, 0.306f);
 		shader.setFloat("mat.shininess", 0.9f);
 
+		glViewport(0, 0, SH_WIDTH, SH_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 		shader.setMat4("projection", lightProjection);
 		shader.setMat4("view", lightView);
@@ -207,19 +208,19 @@ int main()
 		glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glBindVertexArray(VAO);
-
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);	//GL_LINE
-		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glDrawArrays(GL_PATCHES, 0, vertices.size() / 3);
 
+		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		shader.setMat4("projection", projection);
 		shader.setMat4("view", view);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureDepthBuffer);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //GL_LINE
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glDrawArrays(GL_PATCHES, 0, vertices.size() / 3);
 		renderQuad();
 

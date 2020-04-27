@@ -54,7 +54,7 @@ void main()
     vec3 lightDir = normalize(-dirLight.direction);
 
     // diffuse shading
-    float diff = max(dot(norm, dirLight.direction), 0.0);
+    float diff = max(dot(norm, dirLight.direction), 0.0f);
 
     // specular shading
     float spec = 0.f;
@@ -62,12 +62,12 @@ void main()
     if(blinn)
     {
         vec3 helfwayDir = normalize(dirLight.direction + viewDir);
-        spec = pow(max(dot(norm, helfwayDir), 0.0), mat.shininess*2.5f);    //2.f
+        spec = pow(max(dot(norm, helfwayDir), 0.0f), mat.shininess*2.5f);
     }
     else
     {
         vec3 reflectDir = reflect(-dirLight.direction, norm);
-        spec = pow(max(dot(viewDir, reflectDir), 0.0), mat.shininess);
+        spec = pow(max(dot(viewDir, reflectDir), 0.0f), mat.shininess);
     }
     
     vec3 ambient = dirLight.ambient * mat.ambient;     
@@ -95,13 +95,10 @@ void main()
     }
     else
     {
-        shadow = 0;
+        shadow = 0.0f;
     }
 
-    vec4 result = vec4((ambient + (1.0 - shadow)*(diffuse + specular)) * col, 1.0f);
-    
-    if(shadow > 0)
-        col = vec3(1.0f, 0.0f, 0.0f);
+    vec4 result = vec4((ambient + (1.0f - shadow)*(diffuse + specular)) * col, 1.0f);
 
     if(fog)
     {
@@ -122,10 +119,10 @@ float calcShadow(vec4 fragPosLightSpace, float bias)
 {
     float shadow = 0.0f;
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-    projCoords = projCoords * 0.5 + 0.5;
+    projCoords = projCoords * 0.5f + 0.5f;
     float closestDepth = texture(shadowMap, projCoords.xy).r;
     float currentDepth = projCoords.z;
-    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+    vec2 texelSize = 1.0f / textureSize(shadowMap, 0);
 
     for(int i = -1; i < 2; i++)
     {
@@ -134,15 +131,15 @@ float calcShadow(vec4 fragPosLightSpace, float bias)
             float pcf = texture(shadowMap, projCoords.xy + vec2(i, j) * texelSize).r;
             if(currentDepth - bias > pcf)
             {
-                shadow += 1;
+                shadow += 1.0f;
             }
         }
     }
     shadow = shadow/9;
     //float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
-    if(projCoords.z > 1.0)
+    if(projCoords.z > 1.0f)
     {
-        shadow = 0.0;
+        shadow = 0.0f;
     }
-    return shadow*.65;
+    return shadow * 0.65f;
 }
