@@ -13,7 +13,7 @@
 #include <Model.h>
 #include "Terrain.h"
 
-#include<string>
+#include <string>
 #include <iostream>
 #include <numeric>
 
@@ -105,7 +105,7 @@ int main()
 	//Shader postProcShader("..\\shaders\\simplePostVert.vs", "..\\shaders\\depthFrag.fs");	//simplePostFrag
 
 	//Terrain Constructor ; number of grids in width, number of grids in height, gridSize
-	Terrain terrain(50, 50, 10);
+	Terrain terrain(60, 60, 10);
 	std::vector<float> vertices= terrain.getVertices();
 
 	//unsigned int heightMap = loadTexture("..\\resources\\heightMap4.png");
@@ -160,10 +160,10 @@ int main()
 		shader.setInt("shadowBool", shadow);
 
 		glm::vec3 lightPos(-80, 350, -80);	//???
-		glm::vec3 lookingAt(400.f, 20.f, 400.f);
+		glm::vec3 lookingAt(400.f, -50.f, 400.f);
 		glm::mat4 lightView = glm::lookAt(lightPos, lookingAt, glm::vec3(0.0f, 1.0f, 0.0f));
 
-		float near_plane = 0.1f, far_plane = 1000.5f, ortho_size = 350.f;
+		float near_plane = 0.1f, far_plane = 1000.5f, ortho_size = 400.f;
 		glm::mat4 lightProjection = glm::ortho(-ortho_size, ortho_size, -ortho_size, ortho_size, near_plane, far_plane);
 
 		glm::mat4 lightSpaceMatrix = lightProjection * lightView;

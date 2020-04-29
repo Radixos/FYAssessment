@@ -35,7 +35,7 @@ float calcShadow(vec4 fragPosLightSpace, float bias);
 void main()
 {
     vec4 fragPosLightSpace = lightSpaceMatrix * vec4(gWorldPos_FS_in, 1.0f);
-    float bias = 0.001; //max(0.005 * (1.0 - dot(tessNormals, dirLight.direction)), 0.001);
+    float bias = max(0.005 * (1.0 - dot(gnorms, dirLight.direction)), 0.001); //max(0.005 * (1.0 - dot(tessNormals, dirLight.direction)), 0.001);
 
     vec3 col = vec3(0.2,0.2,0.2);
 
@@ -71,7 +71,7 @@ void main()
     }
     
     vec3 ambient = dirLight.ambient * mat.ambient;     
-    vec3 diffuse  = dirLight.diffuse  * (diff * mat.diffuse);
+    vec3 diffuse = dirLight.diffuse * (diff * mat.diffuse);
     vec3 specular = dirLight.specular * (spec * mat.specular);
 
     if (height < 0.0f)
@@ -91,7 +91,10 @@ void main()
 
     if(shadowBool)
     {
-        shadow = calcShadow(fragPosLightSpace, bias);
+        //if (height > 0.07f)
+        //{
+            shadow = calcShadow(fragPosLightSpace, bias);
+        //}
     }
     else
     {
