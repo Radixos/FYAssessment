@@ -22,15 +22,15 @@ out vec3 eyePosTC[];
 
 float GetTessLevel(float dist1, float dist2)
 {
-	float tessLevel = 0;
-	float avgDist = (dist1 + dist2)/2;
+	float tessLevel = 0.0f;
+	float avgDist = (dist1 + dist2)/2.0f;
 
 	float equation = -lambda * avgDist;
 
 	tessLevel = exp(equation) * alpha;
 
-	if (avgDist < 1)
-		return 1;
+	if (avgDist < 1.0f)
+		return 1.0f;
 
 	return tessLevel;
 }
